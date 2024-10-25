@@ -109,36 +109,36 @@ def track_network_usage_and_log_browsing_activity():
                 except:
                     pass
         
-    # Get all network interfaces
-    all_interfaces = netifaces.interfaces()
-    print(f"netifaces asdasdas{all_interfaces}")
-    # Sniff on all available network interfaces
-    for iface in all_interfaces:
-        try:
-            # Start sniffing on each interface in a separate thread
-            sniffer_thread = Thread(target=lambda: sniff(prn=packet_sniffer, store=0, iface=iface))
-            sniffer_thread.daemon = True  # Allow the main thread to exit even if sniffer_thread is still running
-            sniffer_thread.start()
-        except Exception as e:
-            logger.error(f"Failed to sniff on interface {iface}: {str(e)}")
+    # # Get all network interfaces
+    # all_interfaces = netifaces.interfaces()
+    # print(f"netifaces asdasdas{all_interfaces}")
+    # # Sniff on all available network interfaces
+    # for iface in all_interfaces:
+    #     try:
+    #         # Start sniffing on each interface in a separate thread
+    #         sniffer_thread = Thread(target=lambda: sniff(prn=packet_sniffer, store=0, iface=iface))
+    #         sniffer_thread.daemon = True  # Allow the main thread to exit even if sniffer_thread is still running
+    #         sniffer_thread.start()
+    #     except Exception as e:
+    #         logger.error(f"Failed to sniff on interface {iface}: {str(e)}")
 
-    # try:
-    # # Try sniffing on the best working interface first
-    #     iface = get_working_if()  
-    #     print(f"Sniffing on the best interface: {iface}")
-    #     sniff(prn=packet_sniffer, store=0, iface=iface)
-    # except Exception as e:
-    #     logging.error(f"Failed to sniff on best interface: {str(e)}")
-    #     # Fall back to sniffing on all available interfaces
-    #     print("Falling back to sniffing on all interfaces.")
-    #     all_interfaces = netifaces.interfaces()
-    #     for iface in all_interfaces:
-    #         try:
-    #             sniffer_thread = Thread(target=lambda: sniff(prn=packet_sniffer, store=0, iface=iface))
-    #             sniffer_thread.daemon = True
-    #             sniffer_thread.start()
-    #         except Exception as e:
-    #             logging.error(f"Failed to sniff on interface {iface}: {str(e)}")
+    try:
+    # Try sniffing on the best working interface first
+        iface = get_working_if()  
+        print(f"Sniffing on the best interface: {iface}")
+        sniff(prn=packet_sniffer, store=0, iface=iface)
+    except Exception as e:
+        logging.error(f"Failed to sniff on best interface: {str(e)}")
+        # Fall back to sniffing on all available interfaces
+        print("Falling back to sniffing on all interfaces.")
+        all_interfaces = netifaces.interfaces()
+        for iface in all_interfaces:
+            try:
+                sniffer_thread = Thread(target=lambda: sniff(prn=packet_sniffer, store=0, iface=iface))
+                sniffer_thread.daemon = True
+                sniffer_thread.start()
+            except Exception as e:
+                logging.error(f"Failed to sniff on interface {iface}: {str(e)}")
     
     while True:
         # Network usage tracking
