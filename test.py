@@ -100,16 +100,14 @@ def send_url():
         url_viewtime[parent_url] = 0
 
     # If the user was previously viewing a tab, log the time spent on that tab
-    if prev_url:
+    if prev_url and prev_url in url_timestamp:
         time_spent = int(time.time() - url_timestamp[prev_url])
         url_viewtime[prev_url] += time_spent
 
-        # Log browsing activity to SQLite
+        # Log browsing activity to SQLite and CSV
+        timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
         cursor.execute('INSERT INTO browsing_activity (url, time_spent) VALUES (?, ?)', (prev_url, time_spent))
         conn.commit()
-
-        # Log browsing activity to CSV
-        timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
         browsing_csv_writer.writerow([timestamp, prev_url, time_spent])
         browsing_csv_file.flush()
 
@@ -140,12 +138,10 @@ def quit_url():
         time_spent = int(time.time() - url_timestamp[parent_url])
         url_viewtime[parent_url] += time_spent
 
-        # Log to database
+        # Log browsing activity to SQLite and CSV
+        timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
         cursor.execute('INSERT INTO browsing_activity (url, time_spent) VALUES (?, ?)', (parent_url, time_spent))
         conn.commit()
-
-        # Log to CSV
-        timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
         browsing_csv_writer.writerow([timestamp, parent_url, time_spent])
         browsing_csv_file.flush()
 
@@ -153,6 +149,9 @@ def quit_url():
 
         # Remove the closed tab from the timestamp dictionary
         del url_timestamp[parent_url]
+
+    # Reset prev_url after tab closure
+    prev_url = ''
 
     return jsonify({'message': 'quit success!'}), 200
 
